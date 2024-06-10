@@ -2,6 +2,8 @@ import os
 import tkinter as tk
 from tkinter import ttk, messagebox, font, filedialog
 
+from src.gui.process_frame import ProcessFrame
+
 
 class AppGui(tk.Tk):
     def __init__(self):
@@ -48,13 +50,11 @@ class AppGui(tk.Tk):
         messagebox.showinfo("Estado", "Funciona :D")
 
     def create_frames(self):
-        # Crear y almacenar los frames en un diccionario
-        self.frames["ShowProcessFrame"] = tk.Frame(self)
+        self.frames["ShowProcessFrame"] = ProcessFrame(self)
         self.frames["ExecFileFrame"] = ttk.Frame(self)
         self.frames["ReportTokensFrame"] = ttk.Frame(self)
         self.frames["ReportErrorsFrame"] = ttk.Frame(self)
 
-        # Mostrar el frame inicial
         self.show_frame("ShowProcessFrame")
 
     def show_frame(self, frame_name):
