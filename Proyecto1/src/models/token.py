@@ -6,5 +6,5 @@ class Token:
         self.column = column
 
     def __str__(self):
-        return f'{self.name} {self.lexeme} (line: {self.line}, column: {self.column})'
+        return f'Token - {self.name} {self.lexeme} (line: {self.line}, column: {self.column})'
 

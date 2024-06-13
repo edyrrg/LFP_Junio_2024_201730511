@@ -8,48 +8,44 @@ class Lexer:
         self.tokens = []
         self.errors = []
 
-    def is_character_valid(self, character):
-        return character in [';', '[', ']', ':', ',', '{', '}', '>']
-
     def state_zero(self, character, line, column):
         if character.isalpha():
             return 1
-        if character == "-":
+        elif character == "-":
             return 2
-        if character == "'":
+        elif character == "'":
             return 3
-        if self.is_character_valid(character):
+        elif character in [';', '[', ']', ':', ',', '{', '}', '>']:
             return 4
-        if ord(character) != 32 or ord(character) != 10 or ord(character) == 9:
-            pass
+        elif character == ".":
+            return 5
+        elif ord(character) in {32, 10, 9}:
+            return 0
         else:
             self.errors.append(Error("N/A", "N/A", line, column, character))
-        return 0
+            return 0
 
     def analyze(self):
-        line = 1
-        column = 1
+        line, column = 1, 1
+        state, prev_state = 0, 0
         lexeme = ""
-        state = 0
-        previous_state = 0
 
         for character in self.input_sequence:
             if state == 0:
                 state = self.state_zero(character, line, column)
-                lexeme += "" if state == 0 else character
-                # if state == 0:
-                #     lexeme = ""
-                # else:
-                #     lexeme += character
+                if state == 0:
+                    lexeme = ""
+                else:
+                    lexeme += character
 
             elif state == 1:
                 if character.isalpha():
                     lexeme += character
                 else:
                     if lexeme in ["nombre", "nodos", "conexiones"]:
-                        self.tokens.append(Token("Palabra reservada", lexeme, line, column - len(lexeme)))
+                        self.tokens.append(Token("PALABRA RESERVADA", lexeme, line, column - len(lexeme)))
                     else:
-                        self.errors.append(Error("Palabra reservada", lexeme, line, column, "N/A"))
+                        self.errors.append(Error("PALABRA RESERVADA", lexeme, line, column, "N/A"))
 
                     lexeme = ""
 
@@ -60,20 +56,22 @@ class Lexer:
             elif state == 2:
                 if character == ">":
                     lexeme += character
-                    state = 20
-                    previous_state = 2
+                    self.tokens.append(Token("ASIGNACIÓN", lexeme, line, column - len(lexeme) - 1))
+                    lexeme = ""
+                    state = 0
                 else:
-                    self.errors.append(Error("Asignación", lexeme, line, column, character))
+                    self.errors.append(Error("ASIGNACIÓN", lexeme, line, column, character))
                     state = 0
                     lexeme = ""
 
             elif state == 3:
                 if character == "'":
                     lexeme += character
-                    state = 20
-                    previous_state = 3
+                    self.tokens.append(Token("STRING", lexeme, line, column - len(lexeme)))
+                    lexeme = ""
+                    state = 0
                 elif character == "\n":
-                    self.errors.append(Error("String", lexeme, line, column, character))
+                    self.errors.append(Error("STRING", lexeme, line, column, character))
                     state = 0
                     lexeme = ""
                 else:
@@ -81,26 +79,22 @@ class Lexer:
                     lexeme += character
 
             elif state == 4:
-                self.tokens.append(Token("Signo", lexeme, line, column - len(lexeme)))
-
+                self.tokens.append(Token("SIGNO", lexeme, line, column - len(lexeme)))
                 lexeme = ""
-
                 state = self.state_zero(character, line, column)
                 if state != 0:
                     lexeme += character
 
-            elif state == 20:
-                if previous_state == 2:
-                    self.tokens.append(Token("Asignación", lexeme, line, column - len(lexeme)))
-                elif previous_state == 3:
-                    self.tokens.append(Token("String", lexeme, line, column - len(lexeme)))
-                previous_state = 0
-
-                lexeme = ""
-
-                state = self.state_zero(character, line, column)
-                if state != 0:
-                    lexeme += character
+            elif state == 5:
+                lexeme += character
+                if lexeme == "...":
+                    self.tokens.append(Token("SEPARADOR", lexeme, line, column - len(lexeme)))
+                    lexeme = ""
+                    state = 0
+                elif len(lexeme) > 3:
+                    self.errors.append(Error("SEPARADOR", lexeme, line, column, character))
+                    state = 0
+                    lexeme = ""
 
             if ord(character) == 10:
                 line += 1
