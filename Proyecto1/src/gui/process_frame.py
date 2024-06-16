@@ -1,26 +1,37 @@
+import os
 from tkinter import ttk, messagebox
 import tkinter as tk
+from PIL import Image, ImageTk
 
 
 class ProcessFrame(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
-
-        self.image_paths = [
-            "ruta/a/tu/imagen1.jpg",
-            "ruta/a/tu/imagen2.jpg",
-            "ruta/a/tu/imagen3.jpg"
-        ]
-
-        self.combobox = ttk.Combobox(self, values=self.image_paths)
+        self.name_images = None
+        self.list_images = None
+        self.combobox = ttk.Combobox(self, state='disabled')
+        self.combobox.set("...")
         self.combobox.bind("<<ComboboxSelected>>", self.update_image)
         self.combobox.pack(pady=20)
+        self.image_label = tk.Label(self, bd="1", relief="solid")
+        self.image_label.pack_forget()
+        self.current_path_image = None
 
-        self.image_label = tk.Label(self, text="Image here :D", width=50, height=25, bd="1", relief="solid")
-        self.image_label.pack(pady=10)
+    def update_image(self, event):
+        self.current_path_image = self.list_images[self.combobox.get()]+".png"
 
-        if self.image_paths:
-            self.update_image()
+        if os.path.exists(self.current_path_image):
+            imagen = Image.open(self.current_path_image)
+            imagen_tk = ImageTk.PhotoImage(imagen)
+            self.image_label.config(image=imagen_tk)
+            self.image_label.image = imagen_tk
+            self.image_label.pack(pady=10)
+        else:
+            print(f'Imagen no encontrada: {self.current_path_image}')
 
-    def update_image(self, event=None):
-        pass
+
+    def set_images(self, list_images):
+        self.list_images = list_images
+        self.name_images = list(list_images.keys())
+        self.combobox['values'] = self.name_images
+        self.combobox.state(["!disabled", "readonly"])

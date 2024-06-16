@@ -56,7 +56,7 @@ class Lexer:
             elif state == 2:
                 if character == ">":
                     lexeme += character
-                    self.tokens.append(Token("ASIGNACIÓN", lexeme, line, column - len(lexeme) - 1))
+                    self.tokens.append(Token("ASIGNACIÓN", lexeme, line, column - len(lexeme)))
                     lexeme = ""
                     state = 0
                 else:
@@ -84,14 +84,17 @@ class Lexer:
                 state = self.state_zero(character, line, column)
                 if state != 0:
                     lexeme += character
+                    self.tokens.append(Token("SIGNO", lexeme, line, column - len(lexeme)))
 
             elif state == 5:
-                lexeme += character
-                if lexeme == "...":
-                    self.tokens.append(Token("SEPARADOR", lexeme, line, column - len(lexeme)))
-                    lexeme = ""
-                    state = 0
-                elif len(lexeme) > 3:
+                if character == ".":
+                    lexeme += character
+                    if lexeme == "...":
+                        self.tokens.append(Token("SEPARADOR", lexeme, line, column - len(lexeme)))
+                        state = 0
+                        lexeme = ""
+
+                else:
                     self.errors.append(Error("SEPARADOR", lexeme, line, column, character))
                     state = 0
                     lexeme = ""
@@ -103,3 +106,5 @@ class Lexer:
                 column += 4
             else:
                 column += 1
+        # for token in self.tokens:
+        #     print(token)

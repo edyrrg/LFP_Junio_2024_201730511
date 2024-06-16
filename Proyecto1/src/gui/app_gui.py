@@ -15,26 +15,26 @@ class AppGui(tk.Tk):
         self.option_add("*Font", global_font)
         self.center_window(1000, 800)
         self.resizable(False, False)
-        self.create_menu()
         self.__path_file = None
-
+        self.list_images = None
+        self.process_frame = None
+        self.create_menu()
 
     def center_window(self, _width, _height):
         width_screen = self.winfo_screenwidth()
         height_screen = self.winfo_screenheight()
-
-        # x = (with_screen / 2) - (20 / 2)
-        # y = (height_screen / 2) - (20 / 2)
         x = (width_screen - _width) // 2
         y = (height_screen - _height) // 2
-
         self.geometry(f"{_width}x{_height}+{x}+{y}")
 
     def create_menu(self):
-        report_operation_menu = OperationMenuFrame(self)
-        report_operation_menu.pack(side=tk.TOP, expand=False)
-        process_frame = ProcessFrame(self)
-        process_frame.pack(side=tk.TOP, expand=False)
+        operation_menu_frame = OperationMenuFrame(self)
+        operation_menu_frame.pack(side=tk.TOP, expand=False)
+        self.process_frame = ProcessFrame(self)
+        self.process_frame.pack(side=tk.TOP, expand=False)
+
+    def send_list_images(self, list_images):
+        self.process_frame.set_images(list_images)
 
     @property
     def path_file(self):
