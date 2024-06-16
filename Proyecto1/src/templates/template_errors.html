@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style type="text/css">
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .tg {
+            border-collapse: collapse;
+            border-color: #9ABAD9;
+            border-spacing: 0;
+        }
+
+        .tg td {
+            background-color: #EBF5FF;
+            border-color: #9ABAD9;
+            border-style: solid;
+            border-width: 1px;
+            color: #444;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            overflow: hidden;
+            padding: 10px 5px;
+            word-break: normal;
+        }
+
+        .tg th {
+            background-color: #0091ff;
+            border-color: #9ABAD9;
+            border-style: solid;
+            border-width: 1px;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+            font-weight: normal;
+            overflow: hidden;
+            padding: 10px 5px;
+            word-break: normal;
+            font-weight: bolder;
+        }
+
+        .tg .tg-baqh {
+            text-align: center;
+            vertical-align: top
+        }
+
+        p {
+            font-size: 1rem;
+        }
+    </style>
+    <title>Tabla de Tokens</title>
+</head>
+<body>
+<h1>"Reporte de Errores"</h1>
+<table id="tokens" class="tg">
+    <tr>
+        <th class="tg-baqh">Token que estaba siendo reconocido</th>
+        <th class="tg-baqh">Lexema</th>
+        <th class="tg-baqh">Fila</th>
+        <th class="tg-baqh">Columna</th>
+        <th class="tg-baqh">Caracter de error</th>
+    </tr>
+    {% for error in errors %}
+    <tr>
+        <td>{{ error.token }}</td>
+        <td>{{ error.lexeme }}</td>
+        <td>{{ error.line }}</td>
+        <td>{{ error.column }}</td>
+        <td>{{ error.character }}</td>
+    </tr>
+    {% endfor %}
+</table>
+</body>
+</html>
