@@ -2,7 +2,6 @@ import os
 import threading
 from tkinter import ttk, messagebox, filedialog
 import tkinter as tk
-import graphviz
 import time
 from jinja2 import Environment, FileSystemLoader
 
