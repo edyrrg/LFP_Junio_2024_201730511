@@ -6,6 +6,7 @@ import graphviz
 import time
 from jinja2 import Environment, FileSystemLoader
 
+from src.graphviz.graph_dot import GraphDot
 from src.scanner.lexer import Lexer
 
 
@@ -34,7 +35,7 @@ class OperationMenuFrame(tk.Frame):
             title="Seleccione un archivo",
             initialdir="C:/",
             filetypes=[
-                ("Archivos", "*.txt"),
+                ("Archivos", "*.code"),
             ]
         )
 
@@ -57,9 +58,6 @@ class OperationMenuFrame(tk.Frame):
         else:
             messagebox.showerror("Error", "No se ha selecciono un archivo aun")
 
-    def show_info(self):
-        messagebox.showinfo(title="Info", message="Archivos disponibles")
-
     def start(self):
         self.progress_bar['value'] = 0
         self.progress_bar['maximum'] = 100
@@ -68,7 +66,7 @@ class OperationMenuFrame(tk.Frame):
 
     def process(self):
         for i in range(100):
-            time.sleep(0.008)
+            time.sleep(0.006)
             self.progress_bar['value'] = i + 1
             self.update_idletasks()
         self.progress_bar.grid_forget()
@@ -109,17 +107,7 @@ class OperationMenuFrame(tk.Frame):
 
             if token.name == "SEPARADOR" or (i == (len(tokens) - 1) and (token.lexeme == ";" or token.lexeme == "]")):
                 filepath = os.path.join(directory, titulo)
-                graph = graphviz.Digraph(name=titulo, filename=filepath, format="png")
-                for index in range(0, len(nodos), 2):
-                    if index + 1 < len(nodos):
-                        graph.node(nodos[index], nodos[index + 1])
-
-                for index in range(0, len(conexiones), 2):
-                    if index + 1 < len(conexiones):
-                        graph.edge(conexiones[index], conexiones[index + 1])
-
-                graph.attr(label=titulo)
-                graph.render()
+                GraphDot(titulo, filepath, nodos, conexiones)
                 list_images[titulo] = filepath
                 titulo, nodos, conexiones = "", [], []
 
@@ -128,7 +116,7 @@ class OperationMenuFrame(tk.Frame):
     def create_token_report(self):
         path = filedialog.askdirectory(title="Seleccione una ubicación donde guardar el reporte", initialdir="C:/")
 
-        if path == "" and path is None:
+        if path == "" or path is None:
             messagebox.showerror("Error", "Seleccione primero una ubicacion para guardar reporte")
             return
 
@@ -136,13 +124,15 @@ class OperationMenuFrame(tk.Frame):
             messagebox.showerror("Error", "Primero ejecute el archivo antes de generar el repote")
             return
 
+        current_time = int(time.time())
+
         env = Environment(loader=FileSystemLoader('templates'))
 
         template = env.get_template('template_tokens.html')
 
         html_output = template.render(tokens=self.lexer.tokens)
 
-        save_file_path = os.path.join(path, "reporte_tokens.html")
+        save_file_path = os.path.join(path, f"reporte_tokens_{current_time}.html")
 
         with open(save_file_path, 'w') as f:
             f.write(html_output)
@@ -153,13 +143,14 @@ class OperationMenuFrame(tk.Frame):
     def create_errors_report(self):
         path = filedialog.askdirectory(title="Seleccione una ubicación donde guardar el reporte", initialdir="C:/")
 
-        if path == "" and path is None:
+        if path == "" or path is None:
             messagebox.showerror("Error", "Seleccione primero una ubicacion para guardar reporte")
             return
-
         elif self.lexer is None:
             messagebox.showerror("Error", "Primero ejecute el archivo antes de generar el repote")
             return
+
+        current_time = int(time.time())
 
         env = Environment(loader=FileSystemLoader('templates'))
 
@@ -167,7 +158,7 @@ class OperationMenuFrame(tk.Frame):
 
         html_output = template.render(errors=self.lexer.errors)
 
-        save_file_path = os.path.join(path, "reporte_errores.html")
+        save_file_path = os.path.join(path, f"reporte_errores_{current_time}.html")
 
         with open(save_file_path, 'w') as f:
             f.write(html_output)

@@ -1,5 +1,5 @@
 import os
-from tkinter import ttk, messagebox
+from tkinter import ttk
 import tkinter as tk
 from PIL import Image, ImageTk
 
@@ -18,7 +18,7 @@ class ProcessFrame(ttk.Frame):
         self.current_path_image = None
 
     def update_image(self, event):
-        self.current_path_image = self.list_images[self.combobox.get()]+".png"
+        self.current_path_image = self.list_images[self.combobox.get()] + ".png"
 
         if os.path.exists(self.current_path_image):
             imagen = Image.open(self.current_path_image)
@@ -29,9 +29,9 @@ class ProcessFrame(ttk.Frame):
         else:
             print(f'Imagen no encontrada: {self.current_path_image}')
 
-
     def set_images(self, list_images):
         self.list_images = list_images
         self.name_images = list(list_images.keys())
+        self.combobox.set("Seleccione una imagen")
         self.combobox['values'] = self.name_images
         self.combobox.state(["!disabled", "readonly"])
