@@ -1,10 +1,9 @@
 import os
 import tkinter as tk
-from tkinter import ttk, messagebox, font, filedialog
+from tkinter import font
 
 from src.gui.process_frame import ProcessFrame
 from src.gui.operation_menu_frame import OperationMenuFrame
-from src.scanner.lexer import Lexer
 
 
 class AppGui(tk.Tk):

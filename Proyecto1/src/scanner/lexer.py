@@ -106,5 +106,3 @@ class Lexer:
                 column += 4
             else:
                 column += 1
-        # for token in self.tokens:
-        #     print(token)
