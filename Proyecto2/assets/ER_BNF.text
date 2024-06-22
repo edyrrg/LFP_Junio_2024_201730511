@@ -1,0 +1,58 @@
+*************************************************
+*Analisis lexico - ER y Reconocimiento de Tokens*
+*************************************************
+
+// comentario de una linea ------- ^[\/]{2}[a-zA-Z\d\s]+
+/* comentario multilinea 141234 */ ------------- ^\/\*[a-zA-Z\d\s]+\*\/$
+
+Palabras reservadas ------------- Array, new, asc, save
+Simbolos ------------------------ [ ] ; , ( ) .
+Identificador ----------------- [a-z][a-zA-Z\d]+
+String ------------------------- ^"[a-zA-Z\d_\-\/\s\.]+"$
+Númerico ------------------------ [\d]+
+Numerico Decimal ------------------------- [0-9]+(\.[0-9]+)
+Ordenamiento -------------------- sort
+Booleano ------------------------ FALSE, TRUE
+Asignacion ---------------------- =
+
+***************************
+*Analisis Sintactito - BNF*
+***************************
+
+    Simbolos Terminales: Array, New, ascendente, save, Identificador, parentesis_izquierdo, parentesis_dereccho, punto_y_coma,
+                         coma, corchete_izquierdo, corchete_derecho, punto, igual, Booleano, String, Númerico,
+                         Numerico Decimal, sort
+
+    Simbolos no Terminales: <inicio>, <procedimientos>, <procedimiento>, <declaracion>, <ordenamiento>, <guardado>,
+                            <tipo_procedimiento>, <operacion_arreglo>, <listado_items>, <item>
+
+    Inicio: <Inicio>
+
+    Def. de Reglas de Produccion:
+        <inicio> ::= <procedimientos>
+
+        <procedimientos> ::= <procedimientos> <procedimientos>
+                             | epsilon
+
+        <procedimiento> ::= <declaracion>
+                            | <tipo_procedimiento>
+        <tipo_procedimiento> ::= Identificador punto <operacion_arreglo>
+
+        <operacion_arreglo> ::= <ordenamiento>
+                                | <guardar>
+
+        <declaracion> ::= Array Identificador igual New Array corchete_izquierdo <listado_items> corchete_derecho punto_y_coma
+
+        <listado_items> ::= <item>
+                            | <item> coma <listado_items>
+
+        <item> ::= Numerico
+                   | String
+                   | Numerico Decimal
+
+        <ordenamiento> ::= sort parentesis_izquierdo ascendente igual Booleano parentesis_derecho punto_y_coma
+
+        <guardar> ::= save parentesis_izquierdo String parentesis_derecho punto_y_coma
+
+
+
