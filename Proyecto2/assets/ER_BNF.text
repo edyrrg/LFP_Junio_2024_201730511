@@ -2,18 +2,19 @@
 *Analisis lexico - ER y Reconocimiento de Tokens*
 *************************************************
 
-// comentario de una linea ------- ^[\/]{2}[a-zA-Z\d\s]+
+// comentario de una linea --------------------- ^[\/]{2}[a-zA-Z\d\s]+
 /* comentario multilinea 141234 */ ------------- ^\/\*[a-zA-Z\d\s]+\*\/$
 
-Palabras reservadas ------------- Array, new, asc, save
-Simbolos ------------------------ [ ] ; , ( ) .
-Identificador ----------------- [a-z][a-zA-Z\d]+
-String ------------------------- ^"[a-zA-Z\d_\-\/\s\.]+"$
-Númerico ------------------------ [\d]+
-Numerico Decimal ------------------------- [0-9]+(\.[0-9]+)
-Ordenamiento -------------------- sort
-Booleano ------------------------ FALSE, TRUE
-Asignacion ---------------------- =
+Palabras reservadas ---------------------------- Array, new, asc
+Simbolos --------------------------------------- [ ] ; , ( ) .
+Identificador ---------------------------------- [a-z][a-zA-Z\d]+
+String ----------------------------------------- ^"[a-zA-Z\d_\-\/\s\.]+"$
+Númerico --------------------------------------- [\d]+
+Numerico Decimal ------------------------------- [0-9]+(\.[0-9]+)
+Ordenamiento ----------------------------------- sort
+Guardar ---------------------------------------- save
+Booleano --------------------------------------- FALSE, TRUE
+Asignacion ------------------------------------- =
 
 ***************************
 *Analisis Sintactito - BNF*
