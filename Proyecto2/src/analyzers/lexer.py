@@ -1,4 +1,4 @@
-from src.models.error import Error
+from src.models.lexer_error import LexerError
 from src.models.token import Token
 
 
@@ -57,7 +57,7 @@ class Lexer:
             else:
                 self.count_line_or_column()
                 if ord(self.current_char) != 10:
-                    self.errors.append(Error("UNKOWN", self.current_char, self.line, self.column, self.current_char))
+                    self.errors.append(LexerError("UNKOWN", self.current_char, self.line, self.column, self.current_char))
                 self.next_char()
 
         return self.tokens, self.errors
@@ -95,7 +95,7 @@ class Lexer:
         elif result.isalpha() and result.islower() and (self.current_char.isalnum() or self.current_char == "_"):
             self._identifier(result)
         else:
-            tmp_error = Error("KEYWORD", result, self.line, self.column, self.current_char)
+            tmp_error = LexerError("KEYWORD", result, self.line, self.column, self.current_char)
             self.errors.append(tmp_error)
 
     def _symbol(self):
@@ -124,7 +124,7 @@ class Lexer:
             tmp_token = Token("tk_number", "NUMBER", result, self.line, self.column)
             self.tokens.append(tmp_token)
         else:
-            tmp_error = Error("NUMBER", result, self.line, self.column, self.current_char)
+            tmp_error = LexerError("NUMBER", result, self.line, self.column, self.current_char)
             self.errors.append(tmp_error)
 
     def _decimal_number(self, result):
@@ -165,7 +165,7 @@ class Lexer:
             self.tokens.append(tmp_token)
             self.next_char()
         else:
-            tmp_error = Error("STRING", result, self.line, self.column, self.current_char)
+            tmp_error = LexerError("STRING", result, self.line, self.column, self.current_char)
             self.errors.append(tmp_error)
 
     def count_line_or_column(self):
@@ -180,7 +180,7 @@ class Lexer:
 
 if __name__ == '__main__':
     lexer = Lexer(
-        f'Array 5mi_Array = ne*w @Array [15,80,68,55,48, 99.123];\nmiArray.sort(asc=FALSE);\nmiArray.save("ruta/del/archivo.csv");')
+        f'Array 5mi_Array = ne*w @Array ["hola", "numero",68,55,48, 99.123];\nmiArray.sort(asc=FALSE);\nmiArray.save("ruta/del/archivo.csv");')
     tokens, errors = lexer.tokenize()
     for token in tokens:
         print(token)

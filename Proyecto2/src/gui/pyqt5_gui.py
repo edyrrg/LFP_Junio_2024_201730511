@@ -3,6 +3,7 @@ from PyQt5.QtGui import QFont, QColor
 from PyQt5.QtWidgets import QAction, QMainWindow, QTextEdit, QLabel, QPushButton, QFileDialog, QMessageBox
 
 from src.analyzers.lexer import Lexer
+from src.analyzers.parser import Parser
 
 
 class PyQt5GUI(QMainWindow):
@@ -128,4 +129,5 @@ class PyQt5GUI(QMainWindow):
 
         for error in errors:
             print(error)
-
+        parser = Parser(tokens)
+        parser.parse()
