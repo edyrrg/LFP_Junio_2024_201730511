@@ -1,6 +1,8 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QColor
-from PyQt5.QtWidgets import QAction, QMainWindow, QTextEdit, QLabel, QPushButton
+from PyQt5.QtWidgets import QAction, QMainWindow, QTextEdit, QLabel, QPushButton, QFileDialog, QMessageBox
+
+from src.analyzers.lexer import Lexer
 
 
 class PyQt5GUI(QMainWindow):
@@ -10,7 +12,11 @@ class PyQt5GUI(QMainWindow):
 
         self.resize(1100, 700)
 
+        self.path_file = ""
+
         self.create_menu_bar()
+
+        self.text_edit = None
 
         self.create_text_editor()
 
@@ -55,12 +61,12 @@ class PyQt5GUI(QMainWindow):
         parse_tree_action.triggered.connect(self.show_parse_tree)
 
     def create_text_editor(self):
-        text_edit = QTextEdit(self)
-        text_edit.setGeometry(110, 100, 900, 475)
-        text_edit.setPlaceholderText("Editor de código fuente")
+        self.text_edit = QTextEdit(self)
+        self.text_edit.setGeometry(110, 100, 900, 475)
+        self.text_edit.setPlaceholderText("Editor de código fuente")
         font = QFont("Arial", 12)
-        text_edit.setFont(font)
-        text_edit.setStyleSheet("background-color: lightyellow; color: blue;")
+        self.text_edit.setFont(font)
+        self.text_edit.setStyleSheet("background-color: lightyellow; color: blue;")
 
     def create_ui(self):
         label = QLabel("Editor del listado", self)
@@ -74,9 +80,29 @@ class PyQt5GUI(QMainWindow):
         button.setFont(font_button)
         button.resize(100, 50)
         button.move(550, 600)
+        button.clicked.connect(self.exec_code)
 
     def open_file(self):
-        print("Abrir archivo")
+        options = QFileDialog.Options()
+        options |= QFileDialog.ReadOnly
+        file_path, _ = QFileDialog.getOpenFileName(self, "Seleccionar Archivo a Cargar", "C:/",
+                                                   "Archivos de texto (*.lfp)",
+                                                   options=options)
+        if file_path != "" and file_path is not None:
+            self.path_file = file_path
+            file = open(self.path_file, "r", encoding="utf-8")
+            input_text = file.read()
+            self.text_edit.setText(input_text)
+        else:
+            self.show_alert()
+
+    def show_alert(self):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setWindowTitle("Advertencia")
+        msg.setText("No se ha seleccionado ningún archivo")
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
 
     def save_file(self):
         print("Guardar archivo")
@@ -92,3 +118,14 @@ class PyQt5GUI(QMainWindow):
 
     def show_parse_tree(self):
         print("Mostrar árbol de derivación")
+
+    def exec_code(self):
+        input_text = self.text_edit.toPlainText()
+        lexer = Lexer(input_text)
+        tokens, errors = lexer.tokenize()
+        for token in tokens:
+            print(token)
+
+        for error in errors:
+            print(error)
+
