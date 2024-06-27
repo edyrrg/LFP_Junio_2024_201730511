@@ -1,6 +1,10 @@
+import os
+import time
+
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QColor
 from PyQt5.QtWidgets import QAction, QMainWindow, QTextEdit, QLabel, QPushButton, QFileDialog, QMessageBox
+from jinja2 import Environment, FileSystemLoader
 
 from src.analyzers.lexer import Lexer
 from src.analyzers.parser import Parser
@@ -22,6 +26,16 @@ class PyQt5GUI(QMainWindow):
         self.create_text_editor()
 
         self.create_ui()
+
+        self.lexer = None
+
+        self.parser = None
+
+        self.lexer_errors = None
+
+        self.parser_errors = None
+
+        self.tokens = None
 
     def create_menu_bar(self):
         font = QFont("Arial", 11)
@@ -57,8 +71,8 @@ class PyQt5GUI(QMainWindow):
         open_action.triggered.connect(self.open_file)
         save_action.triggered.connect(self.save_file)
         save_as_action.triggered.connect(self.save_as_file)
-        tokens_action.triggered.connect(self.show_tokens)
-        errors_action.triggered.connect(self.show_errors)
+        tokens_action.triggered.connect(self.create_report_tokens)
+        errors_action.triggered.connect(self.create_report_errors)
         parse_tree_action.triggered.connect(self.show_parse_tree)
 
     def create_text_editor(self):
@@ -95,15 +109,23 @@ class PyQt5GUI(QMainWindow):
             input_text = file.read()
             self.text_edit.setText(input_text)
         else:
-            self.show_alert()
+            self.show_alert("Advertencia", "No se ha seleccionado ningún archivo")
 
-    def show_alert(self):
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Warning)
-        msg.setWindowTitle("Advertencia")
-        msg.setText("No se ha seleccionado ningún archivo")
-        msg.setStandardButtons(QMessageBox.Ok)
-        msg.exec_()
+    def show_alert(self, title, message):
+        alert = QMessageBox()
+        alert.setWindowTitle(title)
+        alert.setText(message)
+        alert.setIcon(QMessageBox.Warning)
+        alert.setStandardButtons(QMessageBox.Ok)
+        alert.exec_()
+
+    def show_notification(self, title, message):
+        notification = QMessageBox()
+        notification.setWindowTitle(title)
+        notification.setText(message)
+        notification.setIcon(QMessageBox.Information)
+        notification.setStandardButtons(QMessageBox.Ok)
+        notification.exec_()
 
     def save_file(self):
         print("Guardar archivo")
@@ -111,23 +133,74 @@ class PyQt5GUI(QMainWindow):
     def save_as_file(self):
         print("Guardar archivo como...")
 
-    def show_tokens(self):
-        print("Mostrar tokens")
+    def create_report_tokens(self):
+        options = QFileDialog.Options()
+        folder_path = QFileDialog.getExistingDirectory(self, 'Seleccionar Carpeta', 'C:/', options=options)
+        if folder_path is None or folder_path == "":
+            self.show_alert('Error', 'Por favor, selecciona una carpeta primero para guardar el reporte.')
+            return
 
-    def show_errors(self):
-        print("Mostrar errores")
+        if self.lexer is None or self.parser is None:
+            self.show_alert('Error', 'Por favor, primero ejecute las instrucciones antes de generar el reporte de tokens.')
+            return
+
+        current_time = int(time.time())
+
+        env = Environment(loader=FileSystemLoader("src/template/"))
+
+        template = env.get_template('template_tokens.html')
+
+        html_output = template.render(tokens=self.tokens)
+
+        save_file_path = os.path.join(folder_path, f"reporte_tokens_{current_time}.html")
+
+        with open(save_file_path, 'w') as f:
+            f.write(html_output)
+            f.close()
+
+        self.show_notification("Completado", f"Reporte de tokens creado y guardado en\n{save_file_path}")
+
+    def create_report_errors(self):
+        options = QFileDialog.Options()
+        folder_path = QFileDialog.getExistingDirectory(self, 'Seleccionar Carpeta', 'C:/', options=options)
+        if folder_path is None or folder_path == "":
+            self.show_alert('Error', 'Por favor, selecciona una carpeta primero para guardar el reporte.')
+            return
+
+        if self.lexer is None or self.parser is None:
+            self.show_alert('Error', 'Por favor, primero ejecute las instrucciones antes de generar el reporte de errores.')
+            return
+
+        current_time = int(time.time())
+
+        env = Environment(loader=FileSystemLoader("src/template/"))
+
+        template = env.get_template('template_errors.html')
+
+        html_output = template.render(lexer_errors=self.lexer_errors, syntactical_errors=self.parser_errors)
+
+        save_file_path = os.path.join(folder_path, f"reporte_errores_{current_time}.html")
+
+        with open(save_file_path, 'w') as f:
+            f.write(html_output)
+            f.close()
+
+        self.show_notification("Completado", f"Reporte de errores creado y guardado en\n{save_file_path}")
 
     def show_parse_tree(self):
         print("Mostrar árbol de derivación")
 
     def exec_code(self):
         input_text = self.text_edit.toPlainText()
-        lexer = Lexer(input_text)
-        tokens, errors = lexer.tokenize()
+        self.lexer = Lexer(input_text)
+        tokens, self.lexer_errors = self.lexer.tokenize()
+        self.tokens = tokens.copy()
         for token in tokens:
             print(token)
-
-        for error in errors:
+        for error in self.lexer_errors:
             print(error)
-        parser = Parser(tokens)
-        parser.parse()
+
+        self.parser = Parser(tokens)
+        self.parser_errors = self.parser.parse()
+        for syntactical_error in self.parser_errors:
+            print(syntactical_error)
