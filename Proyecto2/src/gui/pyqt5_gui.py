@@ -201,12 +201,11 @@ class PyQt5GUI(QMainWindow):
         self.lexer = Lexer(input_text)
         tokens, self.lexer_errors = self.lexer.tokenize()
         self.tokens = tokens.copy()
-        for token in tokens:
-            print(token)
-        for error in self.lexer_errors:
-            print(error)
-
+        # for token in tokens:
+        #     print(token)
+        # for error in self.lexer_errors:
+        #     print(error)
         self.parser = Parser(tokens)
         self.parser_errors, self.derivation_tree = self.parser.parse()
-        for syntactical_error in self.parser_errors:
-            print(syntactical_error)
+        # for syntactical_error in self.parser_errors:
+        #     print(syntactical_error)

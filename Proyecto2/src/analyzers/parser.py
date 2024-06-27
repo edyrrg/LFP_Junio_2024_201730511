@@ -11,7 +11,6 @@ class Parser:
         self.tokens.append(Token("$", "EOF", "EOF", -1, -1))
         self.syntactical_errors = []
         self.listado_ids = {}
-        self.count = 0
         self.graph = GraphDot()
 
     def recuperar_modo_panico(self, nombre_token_de_sincronizacion):
@@ -22,7 +21,7 @@ class Parser:
 
     # <inicio> ::= <procedimientos>
     def parse(self):
-        self.graph.create_node(self.count, "<inicio>")
+        self.graph.create_node("<inicio>", "<inicio>")
         self.procedimientos()
         return self.syntactical_errors, self.graph
 
@@ -31,15 +30,16 @@ class Parser:
     def procedimientos(self):
         if self.tokens[0].token == "$":
             return
-        # self.graph.create_node(self.count, "<procedimientos>")
-        # self.graph.create_connection(self.count, 1)
-        # self.count += 1
+        self.graph.create_node("<procedimientos>", "<procedimientos>")
+        self.graph.create_connection("<inicio>", "<procedimientos>")
         self.procedimiento()
         self.procedimientos()
 
     # <procedimiento> ::= <declaración>
     #                    | <tipo de procedimiento>
     def procedimiento(self):
+        self.graph.create_node("<procedimiento>", "<procedimiento>")
+        self.graph.create_connection("<procedimientos>", "<procedimiento>")
         if self.tokens[0].token == "tk_array":
             self.declaracion()
         else:
@@ -47,9 +47,23 @@ class Parser:
 
     # <declaracion> ::= tk_array tk_id tk_asignacion tk_new tk_array tk_corchete_izquierdo <listado items> tk_corchete_derecho tk_punto_y_coma
     def declaracion(self):
+        self.graph.create_node("<declaracion>", "<declaracion>")
+        self.graph.create_connection("<procedimiento>", "<declaracion>")
+        anterior = ""
+
         if self.tokens[0].token == "tk_array":
+
+            self.graph.create_node(f"{self.tokens[0].lexeme}", f"{self.tokens[0].lexeme}")
+            self.graph.create_connection("<declaracion>", f"{self.tokens[0].lexeme}")
+            anterior = self.tokens[0].lexeme
+
             self.tokens.pop(0)
             if self.tokens[0].token == "tk_identifier":
+
+                self.graph.create_node(f"{self.tokens[0].lexeme}", f"{self.tokens[0].lexeme}")
+                self.graph.create_connection(anterior, f"{self.tokens[0].lexeme}")
+                anterior = self.tokens[0].lexeme
+
                 id = self.tokens.pop(0)
                 if self.tokens[0].token == "tk_assign":
                     self.tokens.pop(0)
@@ -65,9 +79,9 @@ class Parser:
                                     if self.tokens[0].token == "tk_punto_y_coma":
                                         self.tokens.pop(0)
                                         self.listado_ids[id.lexeme] = items
-                                        for elemento in self.listado_ids:
-                                            print(elemento)
-                                            print(self.listado_ids[elemento])
+                                        # for elemento in self.listado_ids:
+                                        #     print(elemento)
+                                        #     print(self.listado_ids[elemento])
                                     else:
                                         tmp_se = SyntacticalError(self.tokens[0].lexeme,
                                                                   self.tokens[0].line,
@@ -330,15 +344,15 @@ def bubble_sort(asc, arr):
 
 
 def save_file_csv(ruta, arr):
-    #save_file_path = os.path.join(f"C:/Users/edyrr/PycharmProjects/LFP_Junio_2024_201730511/Proyecto2/src/assets",
+    # save_file_path = os.path.join(f"C:/Users/edyrr/PycharmProjects/LFP_Junio_2024_201730511/Proyecto2/src/assets",
     #                              f"{ruta}")
-    #print(save_file_path)
+    # print(save_file_path)
 
     text = "data\n"
     for i in arr:
         text += str(i)
         text += "\n"
-    print(text)
+    # print(text)
     with open(ruta, "w") as file_csv:
         file_csv.write(text)
         file_csv.close()
