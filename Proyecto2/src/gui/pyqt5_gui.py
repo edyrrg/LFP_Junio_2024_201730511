@@ -8,6 +8,7 @@ from jinja2 import Environment, FileSystemLoader
 
 from src.analyzers.lexer import Lexer
 from src.analyzers.parser import Parser
+from src.graphviz.graph_dot import GraphDot
 
 
 class PyQt5GUI(QMainWindow):
@@ -34,6 +35,8 @@ class PyQt5GUI(QMainWindow):
         self.lexer_errors = None
 
         self.parser_errors = None
+
+        self.derivation_tree: GraphDot = None
 
         self.tokens = None
 
@@ -73,7 +76,7 @@ class PyQt5GUI(QMainWindow):
         save_as_action.triggered.connect(self.save_as_file)
         tokens_action.triggered.connect(self.create_report_tokens)
         errors_action.triggered.connect(self.create_report_errors)
-        parse_tree_action.triggered.connect(self.show_parse_tree)
+        parse_tree_action.triggered.connect(self.create_parse_tree)
 
     def create_text_editor(self):
         self.text_edit = QTextEdit(self)
@@ -187,8 +190,11 @@ class PyQt5GUI(QMainWindow):
 
         self.show_notification("Completado", f"Reporte de errores creado y guardado en\n{save_file_path}")
 
-    def show_parse_tree(self):
-        print("Mostrar árbol de derivación")
+    def create_parse_tree(self):
+        if self.derivation_tree is not None:
+            self.derivation_tree.render_graph("prueba_grafo")
+        else:
+            self.show_alert('Error', 'Por favor, primero ejecute las instrucciones antes de generar el arbol de derivacion')
 
     def exec_code(self):
         input_text = self.text_edit.toPlainText()
@@ -201,6 +207,6 @@ class PyQt5GUI(QMainWindow):
             print(error)
 
         self.parser = Parser(tokens)
-        self.parser_errors = self.parser.parse()
+        self.parser_errors, self.derivation_tree = self.parser.parse()
         for syntactical_error in self.parser_errors:
             print(syntactical_error)

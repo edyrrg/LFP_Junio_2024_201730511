@@ -1,5 +1,6 @@
 import os
 
+from src.graphviz.graph_dot import GraphDot
 from src.models.syntax_error import SyntacticalError
 from src.models.token import Token
 
@@ -10,7 +11,8 @@ class Parser:
         self.tokens.append(Token("$", "EOF", "EOF", -1, -1))
         self.syntactical_errors = []
         self.listado_ids = {}
-
+        self.count = 0
+        self.graph = GraphDot()
 
     def recuperar_modo_panico(self, nombre_token_de_sincronizacion):
         while self.tokens[0].token != "$":
@@ -20,14 +22,18 @@ class Parser:
 
     # <inicio> ::= <procedimientos>
     def parse(self):
+        self.graph.create_node(self.count, "<inicio>")
         self.procedimientos()
-        return self.syntactical_errors
+        return self.syntactical_errors, self.graph
 
-    # <procedimientos>: := <procedimientos> <procedimientos>
+    # <procedimientos>: := <procedimiento> <procedimientos>
     #                     | epsilon
     def procedimientos(self):
         if self.tokens[0].token == "$":
             return
+        # self.graph.create_node(self.count, "<procedimientos>")
+        # self.graph.create_connection(self.count, 1)
+        # self.count += 1
         self.procedimiento()
         self.procedimientos()
 
